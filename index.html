@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AeroLingua & Airport Master - WorldTracer & Timatic Pro</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        sky: { 950: '#030712', 900: '#0b1329', 800: '#111d40', 700: '#1e293b' },
+                        gold: { 400: '#facc15', 500: '#eab308' },
+                        iata: { green: '#00ff66', terminal: '#020b14', border: '#1e3a8a' }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #030712; color: #f3f4f6; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .glass-panel { background: rgba(17, 29, 64, 0.75); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .glass-card { background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .timatic-terminal { background-color: #020b14; border: 1px solid #1e3a8a; font-family: 'JetBrains Mono', monospace; }
+        .glow-cyan { box-shadow: 0 0 25px -5px rgba(0, 184, 217, 0.3); }
+        .glow-green { box-shadow: 0 0 25px -5px rgba(0, 255, 102, 0.25); }
+        .glow-gold { box-shadow: 0 0 25px -5px rgba(234, 179, 8, 0.3); }
+        .glow-purple { box-shadow: 0 0 25px -5px rgba(168, 85, 247, 0.3); }
+        .glow-red { box-shadow: 0 0 25px -5px rgba(239, 68, 68, 0.4); }
+        .menu-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .menu-card:hover { transform: translateY(-6px); }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-cyan-500 selection:text-black">
+
+    <!-- HEADER / NAVIGATION -->
+    <header class="glass-panel sticky top-0 z-50 px-4 lg:px-8 py-3.5 border-b border-gray-800">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('tab-home')">
+                <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-blue-600 to-cyan-400 flex items-center justify-center text-white font-black text-2xl shadow-lg glow-cyan">
+                    <i class="fa-solid fa-plane-departure"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-black tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-400">
+                        AEROLINGUA <span class="text-xs text-gold-400 border border-gold-500/30 px-2 py-0.5 rounded-full ml-1 font-mono">WT & TIMATIC PRO</span>
+                    </h1>
+                    <p class="text-xs text-gray-400">Airport Aviation English, WorldTracer & Timatic Quiz System</p>
+                </div>
+            </div>
+
+            <!-- Header Quick Nav Buttons -->
+            <div class="flex items-center gap-2 overflow-x-auto max-w-full py-1">
+                <button onclick="switchTab('tab-home')" class="px-3 py-2 bg-sky-900/60 hover:bg-sky-800 text-cyan-300 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border border-gray-700 whitespace-nowrap">
+                    <i class="fa-solid fa-house"></i> Menú Principal
+                </button>
+                <button onclick="switchTab('tab-translator')" class="px-3 py-2 bg-purple-900/50 hover:bg-purple-800/80 text-purple-300 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border border-purple-500/30 whitespace-nowrap">
+                    <i class="fa-solid fa-language"></i> Traductor Real
+                </button>
+                <button onclick="switchTab('tab-timatic')" class="px-3 py-2 bg-emerald-900/50 hover:bg-emerald-800/80 text-emerald-300 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border border-emerald-500/30 whitespace-nowrap">
+                    <i class="fa-solid fa-passport"></i> Timatic Inspector
+                </button>
+                <button onclick="switchTab('tab-bagsearch')" class="px-3 py-2 bg-gold-900/50 hover:bg-gold-800/80 text-gold-300 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border border-gold-500/30 whitespace-nowrap">
+                    <i class="fa-solid fa-tags"></i> Buscador WT
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="max-w-7xl mx-auto px-4 lg:px-8 py-6 flex-grow w-full">
+
+        <!-- ================= TAB HOME: MENÚ PRINCIPAL ================= -->
+        <section id="tab-home" class="tab-content block space-y-8">
+            <div class="glass-panel p-6 lg:p-8 rounded-3xl border border-cyan-500/30 glow-cyan relative overflow-hidden">
+                <div class="max-w-3xl space-y-4">
+                    <span class="px-3 py-1 bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 rounded-full text-xs font-bold tracking-wider uppercase">
+                        🎓 SISTEMA CREADO PARA APOYO DE PERSONAL VOI, CREATE4USER DJMM HTML
+                    </span>
+                    <h2 class="text-3xl lg:text-4xl font-extrabold text-white leading-tight">
+                        Catálogo Universal <span class="text-gold-400">WorldTracer</span>, Timatic & <span class="text-green-400">+50 Ejercicios Prácticos</span>
+                    </h2>
+                    <p class="text-sm text-gray-300 leading-relaxed">
+                        Aprende la codificación técnica IATA para cualquier tipo y color de maleta, practica con nuestro banco extendido de preguntas sobre expedientes AHL, DPR, OHD, PIR, evalúa los requisitos migratorios internacionales reales y traduce en tiempo real.
+                    </p>
+                </div>
+            </div>
+
+            <!-- BOTONES DEL MENÚ PRINCIPAL -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- 1. TRADUCTOR REAL MULTILINGÜE -->
+                <div onclick="switchTab('tab-translator')" class="menu-card glass-panel p-6 rounded-2xl border border-purple-500/30 hover:border-purple-400/80 cursor-pointer group space-y-4 glow-purple">
+                    <div class="w-14 h-14 rounded-2xl bg-purple-500/20 text-purple-400 flex items-center justify-center text-2xl group-hover:scale-110 transition">
+                        <i class="fa-solid fa-language"></i>
+                    </div>
+                    <h4 class="text-xl font-bold text-white group-hover:text-purple-300 transition">🌐 Traductor & Micrófono</h4>
+                    <p class="text-xs text-gray-400">Traducción bidireccional por voz o texto: <strong>Inglés, Italiano, Mandarín, Francés, Coreano, Japonés y Hebreo</strong>.</p>
+                </div>
+
+                <!-- 2. TIMATIC INSPECTOR -->
+                <div onclick="switchTab('tab-timatic')" class="menu-card glass-panel p-6 rounded-2xl border border-cyan-500/30 hover:border-cyan-400/80 cursor-pointer group space-y-4 glow-cyan">
+                    <div class="w-14 h-14 rounded-2xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-2xl group-hover:scale-110 transition">
+                        <i class="fa-solid fa-passport"></i>
+                    </div>
+                    <h4 class="text-xl font-bold text-white group-hover:text-cyan-300 transition">✈️ Timatic Inspector</h4>
+                    <p class="text-xs text-gray-400">Inspector dinámico por país/aeropuerto (GUA, MTY, LAX, SJO), evaluación automática de visados, ESTA y exenciones.</p>
+                </div>
+
+                <!-- 3. BUSCADOR WT -->
+                <div onclick="switchTab('tab-bagsearch')" class="menu-card glass-panel p-6 rounded-2xl border border-gold-500/30 hover:border-gold-400/80 cursor-pointer group space-y-4 glow-gold">
+                    <div class="w-14 h-14 rounded-2xl bg-gold-500/20 text-gold-400 flex items-center justify-center text-2xl group-hover:scale-110 transition">
+                        <i class="fa-solid fa-tags"></i>
+                    </div>
+                    <h4 class="text-xl font-bold text-white group-hover:text-gold-300 transition">🧳 Buscador WorldTracer</h4>
+                    <p class="text-xs text-gray-400">Escribe texto libre (ej. <i>"maleta roja dura"</i>) y obtén el código IATA exacto (ej. <strong>22RD</strong>).</p>
+                </div>
+
+                <!-- 4. BANCO +50 PREGUNTAS -->
+                <div onclick="switchTab('tab-worldtracer')" class="menu-card glass-panel p-6 rounded-2xl border border-green-500/30 hover:border-green-400/80 cursor-pointer group space-y-4 glow-green">
+                    <div class="w-14 h-14 rounded-2xl bg-green-500/20 text-green-400 flex items-center justify-center text-2xl group-hover:scale-110 transition">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                    </div>
+                    <h4 class="text-xl font-bold text-white group-hover:text-green-300 transition">📚 +50 Preguntas Prácticas</h4>
+                    <p class="text-xs text-gray-400">Simulador de examen de opción múltiple sobre WorldTracer y requisitos migratorios globales.</p>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ================= TAB 1: TRADUCTOR MULTILINGÜE REAL ================= -->
+        <section id="tab-translator" class="tab-content hidden space-y-6">
+            <div class="glass-panel p-6 rounded-2xl border border-purple-500/30 glow-purple">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 pb-4 border-b border-gray-800">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-language text-purple-400"></i> Traductor Multilingüe Bidireccional en Vivo
+                        </h2>
+                        <p class="text-sm text-gray-400">Traduce texto o voz entre Español y cualquier idioma seleccionado.</p>
+                    </div>
+                    <button onclick="switchTab('tab-home')" class="text-xs text-cyan-400 hover:underline">← Menú Principal</button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 mb-2">Dirección de Traducción:</label>
+                        <select id="trans-dir-select" onchange="updateTranslationMode()" class="w-full bg-sky-950 border border-purple-500/40 rounded-xl p-3 text-sm font-bold text-white focus:outline-none">
+                            <option value="es2foreign">🇪🇸 Español ➔ Idioma Extranjero</option>
+                            <option value="foreign2es">🌐 Idioma Extranjero ➔ 🇪🇸 Español</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 mb-2">Idioma Extranjero:</label>
+                        <select id="trans-lang-select" onchange="translateTextRealtime()" class="w-full bg-sky-950 border border-purple-500/40 rounded-xl p-3 text-sm font-bold text-white focus:outline-none">
+                            <option value="it">🇮🇹 Italiano (Italiano)</option>
+                            <option value="en">🇬🇧 Inglés (English)</option>
+                            <option value="zh-CN">🇨🇳 Mandarín / Chino (中文)</option>
+                            <option value="fr">🇫🇷 Francés (Français)</option>
+                            <option value="ko">🇰🇷 Coreano (한국어)</option>
+                            <option value="ja">🇯🇵 Japonés (日本語)</option>
+                            <option value="he">🇮🇱 Hebreo (עברית)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 mb-2">Frases Rápidas Frecuentes:</label>
+                        <select id="trans-quick-phrase" onchange="loadQuickPhrase(this.value)" class="w-full bg-sky-950 border border-gray-700 rounded-xl p-3 text-sm text-gray-200 focus:outline-none">
+                            <option value="">-- Seleccionar frase frecuente --</option>
+                            <option value="Lamentablemente su abordaje no está permitido por falta de visa requerida.">Lamentablemente su abordaje no está permitido por falta de visa requerida.</option>
+                            <option value="Su maleta no llegó en la banda de equipaje.">Su maleta no llegó en la banda de equipaje.</option>
+                            <option value="Por favor muestre su pasaporte y visa para abordar.">Por favor muestre su pasaporte y visa para abordar.</option>
+                            <option value="Su vuelo de conexión sale por la puerta B12.">Su vuelo de conexión sale por la puerta B12.</option>
+                            <option value="Debe presentar su tarjeta de residencia vigente.">Debe presentar su tarjeta de residencia vigente.</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <label id="trans-label-input" class="block text-xs font-bold text-cyan-400 uppercase">🇪🇸 Texto de Entrada (Español):</label>
+                            <button id="btn-mic-start" onclick="startVoiceRecognition()" class="px-3 py-1 bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/40 rounded-lg text-xs font-bold transition flex items-center gap-1.5">
+                                <i class="fa-solid fa-microphone"></i> 🎙️ Dictar por Micrófono
+                            </button>
+                        </div>
+                        <textarea id="trans-input-es" rows="5" placeholder="Escribe o dicta aquí..." class="w-full bg-sky-950 border border-gray-700 rounded-xl p-4 text-sm text-white focus:border-purple-400 focus:outline-none resize-none" oninput="translateTextRealtime()"></textarea>
+                    </div>
+
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <label id="trans-label-output" class="block text-xs font-bold text-purple-400 uppercase">🌐 Traducción Generada:</label>
+                            <button onclick="speakTranslatedText()" class="px-3 py-1 bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-500/40 rounded-lg text-xs font-bold transition flex items-center gap-1.5">
+                                <i class="fa-solid fa-volume-high"></i> Escuchar Pronunciación
+                            </button>
+                        </div>
+                        <div id="trans-output-text" class="w-full min-h-[128px] bg-sky-950 border border-purple-500/30 rounded-xl p-4 text-base font-bold text-white font-mono flex items-center leading-relaxed">
+                            Escribe o dicta por micrófono para traducir automáticamente...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ================= TAB 2: TIMATIC GLOBAL CON REQUISITOS DINÁMICOS POR PAÍS ================= -->
+        <section id="tab-timatic" class="tab-content hidden space-y-6">
+            <div class="glass-panel p-6 rounded-2xl border border-cyan-500/20">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4 pb-4 border-b border-gray-800">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-passport text-iata-green"></i> Consulta Timatic Global (Requisitos Dinámicos)
+                        </h2>
+                        <p class="text-sm text-gray-400">Selecciona o escribe el origen/aeropuerto y destino para calcular la regla migratoria exacta.</p>
+                    </div>
+                    <button onclick="switchTab('tab-home')" class="text-xs text-cyan-400 hover:underline">← Menú Principal</button>
+                </div>
+
+                <!-- NOTA FIJA REGLA DNR / DNI MÉXICO -->
+                <div class="bg-gold-500/10 border border-gold-500/40 p-4 rounded-xl flex items-start gap-3 mb-6">
+                    <div class="text-gold-400 text-lg mt-0.5"><i class="fa-solid fa-circle-info"></i></div>
+                    <div class="text-xs text-gold-200 leading-relaxed">
+                        <span class="font-bold text-gold-400 uppercase tracking-wider block mb-1">📌 NOTA REGULATORIA MIGRATORIA MÉXICO (IMPUESTO DNR / DNI):</span>
+                        Los pasajeros que <strong>NO</strong> cuenten con <strong>Pasaporte Mexicano</strong> o <strong>Residencia Mexicana (Permanente o Temporal)</strong> deben pagar el impuesto <strong>DNR / DNI (Derecho de No Residente / Derecho de Inmigración)</strong> para ingresar a México.
+                    </div>
+                </div>
+
+                <!-- DATALIST GLOBAL PARA AUTO-AYUDA -->
+                <datalist id="world-countries-airports-list">
+                    <!-- Inyectado dinámicamente por JS -->
+                </datalist>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                    <!-- 1. Nacionalidad -->
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 mb-1">1. Nacionalidad (Escribe País o Código)</label>
+                        <input type="text" id="tmat-nat-input" list="world-countries-airports-list" oninput="executeTimaticCheck()" placeholder="Ej: Guatemala, España, México, India..." class="w-full bg-sky-950 border border-cyan-500/40 rounded-xl p-3 text-sm font-mono text-white focus:outline-none focus:border-cyan-400">
+                    </div>
+
+                    <!-- 2. Tipo de Documento / Residencia -->
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 mb-1">2. Documento / Residencia Presentada</label>
+                        <select id="tmat-doctype" onchange="executeTimaticCheck()" class="w-full bg-sky-950 border border-gray-700 rounded-xl p-3 text-sm font-mono text-white focus:outline-none">
+                            <option value="PASSPORT">Pasaporte Ordinario (Ordinary Passport)</option>
+                            <option value="US_GREEN_CARD">🇺🇸 Residencia Permanente US (Green Card Form I-551)</option>
+                            <option value="US_TEMP_RES">🇺🇸 Residencia Temporal EE.UU. (US Temp Resident)</option>
+                            <option value="MX_PERM_RES">🇲🇽 Residencia Permanente México</option>
+                            <option value="MX_TEMP_RES">🇲🇽 Residencia Temporal México</option>
+                            <option value="EU_PERM_RES">🇪🇺 Residencia Permanente UE / Schengen</option>
+                        </select>
+                    </div>
+
+                    <!-- 3. Autorización Electrónica / Visa Adicional -->
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 mb-1">3. Autorización / Visa Adicional</label>
+                        <select id="tmat-extra-auth" onchange="executeTimaticCheck()" class="w-full bg-sky-950 border border-gray-700 rounded-xl p-3 text-sm font-mono text-white focus:outline-none">
+                            <option value="NONE">Ninguna (Solo Pasaporte / Residencia)</option>
+                            <option value="ESTA_US">🇺🇸 ESTA (EE.UU. Electronic System for Travel Auth)</option>
+                            <option value="US_VISA">🇺🇸 Visa B1/B2 Física EE.UU. Vigente</option>
+                            <option value="SCH_VISA">🇪🇺 Visa Schengen Múltiple Vigente</option>
+                            <option value="ETA_CA">🇨🇦 eTA Canadá</option>
+                            <option value="SAE_MX">🇲🇽 SAE / e-Visa México</option>
+                            <option value="EVUS_CN">🇨🇳 EVUS (China)</option>
+                        </select>
+                    </div>
+
+                    <!-- 4. Destino Final -->
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 mb-1">4. País Destino / Aeropuerto</label>
+                        <input type="text" id="tmat-dest-input" list="world-countries-airports-list" oninput="executeTimaticCheck()" placeholder="Ej: Mexico City, USA, LAX, MTY, GUA..." class="w-full bg-sky-950 border border-cyan-500/40 rounded-xl p-3 text-sm font-mono text-white focus:outline-none focus:border-cyan-400">
+                    </div>
+
+                    <!-- 5. Tránsito / Conexión -->
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 mb-1">5. Tránsito / Conexión</label>
+                        <select id="tmat-transit" onchange="executeTimaticCheck()" class="w-full bg-sky-950 border border-gray-700 rounded-xl p-3 text-sm font-mono text-white focus:outline-none">
+                            <option value="NONE">Vuelo Directo (Sin Escala)</option>
+                            <option value="US">🇺🇸 Tránsito en EE.UU. (LAX / MIA / JFK / DFW)</option>
+                            <option value="DE">🇩🇪 Tránsito en Alemania / Schengen (FRA / MUC)</option>
+                            <option value="MX">🇲🇽 Tránsito en México (MEX / CUN / NLU / MTY)</option>
+                            <option value="PA">🇵🇦 Tránsito en Panamá (PTY)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button onclick="executeTimaticCheck()" class="w-full md:w-auto px-8 py-3.5 bg-iata-green hover:bg-green-400 text-sky-950 font-bold rounded-xl transition shadow-lg text-sm flex items-center justify-center gap-2 mx-auto glow-green">
+                        <i class="fa-solid fa-terminal"></i> ACTUALIZAR Y REVISAR DICTAMEN TIMATIC
+                    </button>
+                </div>
+            </div>
+
+            <!-- RESULTADO TERMINAL -->
+            <div id="timatic-result-screen" class="hidden timatic-terminal p-6 rounded-2xl border border-blue-900 text-gray-200 text-xs leading-relaxed space-y-5">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center pb-3 border-b border-blue-900/80 gap-2">
+                    <div class="flex items-center gap-3">
+                        <span id="tmat-status-badge" class="px-3 py-1 rounded bg-green-500/20 text-iata-green border border-green-500/40 font-bold text-xs">OK TO BOARD</span>
+                        <span class="text-gray-400 font-mono">IATA TIMATIC CLEARANCE SYSTEM</span>
+                    </div>
+                    <span class="text-gray-500 font-mono">REF: <span id="tmat-ref-id">TIM-882109</span></span>
+                </div>
+                <div class="space-y-1 bg-sky-950/80 p-3 rounded border border-blue-900/50">
+                    <p class="text-cyan-400 font-bold uppercase">&gt; SUMMARY OF TRAVEL DOCUMENTS:</p>
+                    <p id="tmat-out-summary" class="text-gray-300 font-mono"></p>
+                </div>
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center">
+                        <p class="text-gold-400 font-bold uppercase">&gt; REQUISITOS DE ENTRADA Y EVALUACIÓN MIGRATORIA:</p>
+                        <button onclick="speakText(document.getElementById('tmat-out-visa-en').innerText, 'en-US')" class="px-2.5 py-1 bg-gold-500/20 text-gold-400 rounded text-[11px] font-bold flex items-center gap-1.5 hover:bg-gold-500/30">
+                            <i class="fa-solid fa-volume-high"></i> Escuchar Inglés
+                        </button>
+                    </div>
+                    <p id="tmat-out-visa-en" class="text-white font-mono text-sm bg-sky-950 p-3 rounded border border-gray-800 leading-relaxed"></p>
+                    <p id="tmat-out-visa-es" class="text-gray-400 italic pl-1"></p>
+                </div>
+                <!-- MENSAJE / FRASE OFICIAL PARA COMUNICAR AL PASAJERO -->
+                <div id="tmat-pax-msg-box" class="p-4 rounded-xl border space-y-2">
+                    <!-- Dynamic Speech Box -->
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ================= TAB 3: BUSCADOR CÓDIGOS EQUIPAJE WT ================= -->
+        <section id="tab-bagsearch" class="tab-content hidden space-y-6">
+            <div class="glass-panel p-6 rounded-2xl border border-gold-500/30 glow-gold">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 pb-4 border-b border-gray-800">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-tags text-gold-400"></i> Buscador Inteligente WorldTracer (Catálogo Completo IATA)
+                        </h2>
+                        <p class="text-sm text-gray-400">Escribe cualquier descripción (ej. <i>"maleta roja dura"</i>) para convertirla automáticamente en su código IATA oficial.</p>
+                    </div>
+                    <button onclick="switchTab('tab-home')" class="text-xs text-cyan-400 hover:underline">← Menú Principal</button>
+                </div>
+
+                <!-- BÚSQUEDA LIBRE -->
+                <div class="mb-6">
+                    <label class="block text-xs font-bold text-gold-400 uppercase tracking-wider mb-2">Ingresa Descripción del Equipaje:</label>
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <input type="text" id="bag-free-text" placeholder="Ej: maleta roja dura, bolso de mano negro, mochila azul, porta trajes gris..." class="w-full bg-sky-950 border border-gold-500/40 rounded-xl px-4 py-3 text-sm text-white focus:outline-none font-medium">
+                        <button onclick="parseFreeTextBag()" class="px-6 py-3 bg-gold-500 hover:bg-gold-400 text-sky-950 font-bold rounded-xl transition whitespace-nowrap flex items-center justify-center gap-2 shadow-lg">
+                            <i class="fa-solid fa-magnifying-glass"></i> Convertir a Código WT
+                        </button>
+                    </div>
+                </div>
+
+                <!-- SELECCIÓN MANUAL -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 mb-1">Estructura / Tipo (IATA Type)</label>
+                        <select id="bag-select-type" onchange="updateManualBagCode()" class="w-full bg-sky-950 border border-gray-700 rounded-xl p-3 text-sm font-mono text-white focus:outline-none">
+                            <option value="22R">22R / 22 - Maleta Rígida / Dura (Hardshell Suitcase)</option>
+                            <option value="01">01 - Maleta Blanda / Tela (Softside Suitcase)</option>
+                            <option value="05">05 - Bolso de Viaje / Maletín / Duffle Bag</option>
+                            <option value="02">02 - Mochila / Morral / Backpack / Rucksack</option>
+                            <option value="07">07 - Caja de Cartón / Embalaje (Carton Box)</option>
+                            <option value="10">10 - Porta Trajes / Vestidos (Garment Bag)</option>
+                            <option value="12">12 - Estuche de Instrumento / Equipaje Especial</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 mb-1">Color Oficial IATA (Color Code)</label>
+                        <select id="bag-select-color" onchange="updateManualBagCode()" class="w-full bg-sky-950 border border-gray-700 rounded-xl p-3 text-sm font-mono text-white focus:outline-none">
+                            <option value="RD">RD - Rojo / Red</option>
+                            <option value="BK">BK - Negro / Black</option>
+                            <option value="BL">BL - Azul / Blue</option>
+                            <option value="GY">GY - Gris / Plata / Grey / Silver</option>
+                            <option value="BN">BN - Marrón / Café / Brown / Tan</option>
+                            <option value="GN">GN - Verde / Green</option>
+                            <option value="WT">WT - Blanco / White</option>
+                            <option value="YL">YL - Amarillo / Oro / Yellow / Gold</option>
+                            <option value="PR">PR - Púrpura / Morado / Purple</option>
+                            <option value="BE">BE - Beige / Arena / Cream</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- RESULTADO GENERADO -->
+                <div id="bag-result-box" class="glass-card p-6 rounded-2xl border border-gold-500/40 flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div class="flex items-center gap-4">
+                        <div class="w-16 h-16 rounded-2xl bg-gold-500/20 text-gold-400 border border-gold-500/40 flex items-center justify-center text-3xl font-black">
+                            <i class="fa-solid fa-suitcase"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span id="bag-generated-code" class="text-3xl font-black text-gold-400 font-mono">22RD</span>
+                                <span id="bag-generated-alt-code" class="text-sm px-2 py-0.5 rounded bg-sky-950 text-cyan-400 font-mono border border-gray-700">(Formato WT: 22RD / 22R-RD)</span>
+                            </div>
+                            <p id="bag-generated-desc-es" class="text-sm font-bold text-white mt-1">Maleta Rígida / Dura de Color Rojo</p>
+                            <p id="bag-generated-desc-en" class="text-xs text-gray-400 italic">Red Hardshell Suitcase (IATA Type 22 / Color RD)</p>
+                        </div>
+                    </div>
+                    <button onclick="speakText(document.getElementById('bag-generated-desc-en').innerText, 'en-US')" class="px-4 py-2.5 bg-gold-500/20 text-gold-300 hover:bg-gold-500/30 rounded-xl text-xs font-bold transition flex items-center gap-2 whitespace-nowrap">
+                        <i class="fa-solid fa-volume-high"></i> Escuchar Pronunciación
+                    </button>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ================= TAB 4: BANCO DE +50 PREGUNTAS WORLDTRACER & MIGRACIÓN ================= -->
+        <section id="tab-worldtracer" class="tab-content hidden space-y-6">
+            <div class="glass-panel p-6 rounded-2xl border border-green-500/30 glow-green">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 pb-4 border-b border-gray-800">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-graduation-cap text-green-400"></i> Banco Práctico Bilingüe (+50 Preguntas)
+                        </h2>
+                        <p class="text-sm text-gray-400">Ejercicios de opción múltiple sobre procedimientos WorldTracer y Requisitos Migratorios.</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="getRandomQuestion()" class="px-4 py-2 bg-green-500/20 hover:bg-green-500/30 text-green-300 border border-green-500/40 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-shuffle"></i> Nueva Pregunta
+                        </button>
+                        <button onclick="switchTab('tab-home')" class="text-xs text-cyan-400 hover:underline">← Menú Principal</button>
+                    </div>
+                </div>
+
+                <div class="glass-card p-6 rounded-2xl border border-gray-800 space-y-6">
+                    <div class="flex justify-between items-center">
+                        <span id="quiz-cat-badge" class="px-3 py-1 bg-green-500/20 text-green-400 text-xs font-mono font-bold rounded-full border border-green-500/30">
+                            CATEGORY
+                        </span>
+                        <span class="text-xs text-gray-400 font-mono">Pregunta <span id="quiz-current-num">1</span> de 50+</span>
+                    </div>
+
+                    <div class="space-y-1">
+                        <div class="flex items-center justify-between">
+                            <h3 id="quiz-question-en" class="text-lg font-bold text-white leading-snug"></h3>
+                            <button id="btn-quiz-speech" class="px-2.5 py-1 bg-sky-950 hover:bg-sky-900 text-cyan-400 rounded-lg text-xs font-bold border border-gray-800 flex items-center gap-1">
+                                <i class="fa-solid fa-volume-high"></i> Audio
+                            </button>
+                        </div>
+                        <p id="quiz-question-es" class="text-xs text-gray-400 italic"></p>
+                    </div>
+
+                    <div id="quiz-options-container" class="grid grid-cols-1 gap-3">
+                        <!-- Options injected by JS -->
+                    </div>
+
+                    <div id="quiz-feedback-box" class="hidden p-4 rounded-xl border text-xs font-semibold"></div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER ACTUALIZADO EXACTAMENTE SEGÚN SOLICITUD -->
+    <footer class="glass-panel border-t border-gray-800 py-4 px-4 text-center text-xs text-gray-500">
+        <p>SISTEMA CREADO PARA APOYO DE PERSONAL VOI, CREATE4USER DJMM HTML</p>
+    </footer>
+
+    <!-- JS LOGIC -->
+    <script>
+        // ================= BASE DE DATOS GLOBAL DE PAÍSES Y AEROPUERTOS =================
+        const worldDataList = [
+            { code: "LAX", label: "LAX - Los Ángeles Airport (Estados Unidos)", iso: "USA" },
+            { code: "MTY", label: "MTY - Monterrey Airport (México)", iso: "MEX" },
+            { code: "GUA", label: "GUA - La Aurora Airport (Guatemala)", iso: "GTM" },
+            { code: "SJO", label: "SJO - San José Airport (Costa Rica)", iso: "CRI" },
+            { code: "CUN", label: "CUN - Cancún Airport (México)", iso: "MEX" },
+            { code: "MEX", label: "MEX - Mexico City Airport AICM (México)", iso: "MEX" },
+            { code: "PTY", label: "PTY - Tocumen Airport (Panamá)", iso: "PAN" },
+            { code: "JFK", label: "JFK - New York Kennedy Airport (Estados Unidos)", iso: "USA" },
+            { code: "MIA", label: "MIA - Miami International Airport (Estados Unidos)", iso: "USA" },
+            { code: "GTM", label: "Guatemala (GTM / GUA)", iso: "GTM" },
+            { code: "ESP", label: "España (ESP - Spain / EU)", iso: "ESP" },
+            { code: "MEX", label: "México (MEX / MTY / CUN)", iso: "MEX" },
+            { code: "USA", label: "Estados Unidos (USA / LAX / MIA)", iso: "USA" },
+            { code: "CRI", label: "Costa Rica (CRI / SJO / CRT)", iso: "CRI" },
+            { code: "CAN", label: "Canadá (CAN)", iso: "CAN" },
+            { code: "IND", label: "India (IND)", iso: "IND" },
+            { code: "COL", label: "Colombia (COL)", iso: "COL" },
+            { code: "BRA", label: "Brasil (BRA)", iso: "BRA" },
+            { code: "ARG", label: "Argentina (ARG)", iso: "ARG" },
+            { code: "SLV", label: "El Salvador (SLV)", iso: "SLV" },
+            { code: "HND", label: "Honduras (HND)", iso: "HND" },
+            { code: "NIC", label: "Nicaragua (NIC)", iso: "NIC" },
+            { code: "PAN", label: "Panamá (PAN)", iso: "PAN" },
+            { code: "FRA", label: "Francia (FRA)", iso: "FRA" },
+            { code: "DEU", label: "Alemania (DEU)", iso: "DEU" },
+            { code: "ITA", label: "Italia (ITA)", iso: "ITA" },
+            { code: "GBR", label: "Reino Unido (GBR)", iso: "GBR" },
+            { code: "CHN", label: "China (CHN)", iso: "CHN" },
+            { code: "JPN", label: "Japón (JPN)", iso: "JPN" }
+        ];
+
+        function populateDataList() {
+            const datalist = document.getElementById('world-countries-airports-list');
+            datalist.innerHTML = worldDataList.map(item => `<option value="${item.label}"></option>`).join('');
+            
+            document.getElementById('tmat-nat-input').value = "Guatemala (GTM / GUA)";
+            document.getElementById('tmat-dest-input').value = "MEX - Mexico City Airport AICM (México)";
+        }
+
+        // ================= TIMATIC DINÁMICO REGLAS MIGRATORIAS =================
+        function executeTimaticCheck() {
+            const natVal = document.getElementById('tmat-nat-input').value.toUpperCase();
+            const destVal = document.getElementById('tmat-dest-input').value.toUpperCase();
+            const docType = document.getElementById('tmat-doctype').value;
+            const auth = document.getElementById('tmat-extra-auth').value;
+            const transit = document.getElementById('tmat-transit').value;
+
+            let status = "OK TO BOARD - CLEARANCE GRANTED";
+            let statusClass = "px-3 py-1 rounded bg-green-500/20 text-iata-green border border-green-500/40 font-bold text-xs";
+            let isAllowed = true;
+            let visaEn = "";
+            let visaEs = "";
+            let speechMsgEn = "";
+            let speechMsgEs = "";
+
+            // Banderas de identificación de países / regiones
+            const isDestUS = destVal.includes("USA") || destVal.includes("LAX") || destVal.includes("JFK") || destVal.includes("MIA") || destVal.includes("ESTADOS UNIDOS");
+            const isDestMX = destVal.includes("MEX") || destVal.includes("MTY") || destVal.includes("CUN") || destVal.includes("MÉXICO") || destVal.includes("MEXICO CITY");
+            const isDestCA = destVal.includes("CAN") || destVal.includes("CANADÁ") || destVal.includes("CANADA");
+
+            const isNatGT = natVal.includes("GUATEMALA") || natVal.includes("GTM") || natVal.includes("GUA");
+            const isNatES = natVal.includes("ESPAÑA") || natVal.includes("SPAIN") || natVal.includes("ESP");
+            const isNatMX = natVal.includes("MÉXICO") || natVal.includes("MEXICO") || natVal.includes("MEX");
+            const isNatUS = natVal.includes("ESTADOS UNIDOS") || natVal.includes("USA") || natVal.includes("US");
+
+            // Exenciones globales por Residencia / Visa física de potencias
+            const hasUSGreenCard = (docType === 'US_GREEN_CARD' || docType === 'US_TEMP_RES');
+            const hasMXResident = (docType === 'MX_PERM_RES' || docType === 'MX_TEMP_RES');
+            const hasUSVisa = (auth === 'US_VISA');
+            const hasSchengenVisa = (auth === 'SCH_VISA');
+            const hasESTA = (auth === 'ESTA_US');
+
+            // --- REGLA 1: TRÁNSITO POR EE.UU. SIN VISA/ESTA ---
+            if (transit === 'US' && !hasESTA && !hasUSVisa && !hasUSGreenCard && !isNatUS) {
+                isAllowed = false;
+                status = "NO BOARD - TRANSIT DENIED (US VISA / ESTA MANDATORY)";
+                statusClass = "px-3 py-1 rounded bg-red-500/20 text-red-400 border border-red-500/40 font-bold text-xs glow-red";
+                visaEn = "BOARDING DENIED: US transit requires full immigration clearance. Passengers transiting via US MUST hold a valid US Visa or ESTA authorization.";
+                visaEs = "ABORDAJE DENEGADO: El tránsito por EE.UU. requiere control migratorio completo. Se exige Visa de EE.UU. o ESTA vigente.";
+                speechMsgEn = "Boarding is denied because transit through the United States requires a valid US Visa or ESTA.";
+                speechMsgEs = "Abordaje denegado debido a que el tránsito por Estados Unidos requiere Visa de EE.UU. o ESTA válido.";
+            }
+
+            // --- REGLA 2: DESTINO EE.UU. ---
+            else if (isDestUS) {
+                if (isNatUS || hasUSGreenCard) {
+                    status = "OK TO BOARD (US CITIZEN / RESIDENT)";
+                    visaEn = "OK TO BOARD: US Citizens and Green Card / Resident Permit holders are entry cleared with valid documentation.";
+                    visaEs = "ABORDAJE PERMITIDO: Ciudadanos o Residentes de EE.UU. autorizados a ingresar.";
+                    speechMsgEn = "Welcome. Your US citizenship or residence grants you entry clearance.";
+                    speechMsgEs = "Bienvenido. Su ciudadanía o residencia en EE.UU. le otorga autorización de ingreso.";
+                }
+                else if (isNatES && (hasESTA || hasUSVisa)) {
+                    status = "OK TO BOARD (ESTA / VISA APPROVED)";
+                    visaEn = "OK TO BOARD: Spanish citizen holds an approved ESTA / US Visa. Passport valid for travel.";
+                    visaEs = "ABORDAJE PERMITIDO: Ciudadano español cuenta con ESTA aprobado o Visa de EE.UU. Pasaporte vigente.";
+                    speechMsgEn = "Your ESTA authorization is validated. Boarding cleared for USA.";
+                    speechMsgEs = "Su autorización ESTA está validada. Abordaje autorizado hacia EE.UU.";
+                }
+                else if (isNatES && !hasESTA && !hasUSVisa) {
+                    isAllowed = false;
+                    status = "NO BOARD - MISSING ESTA (USA REQUISITE)";
+                    statusClass = "px-3 py-1 rounded bg-red-500/20 text-red-400 border border-red-500/40 font-bold text-xs glow-red";
+                    visaEn = "BOARDING DENIED: Spanish passport holders require an approved ESTA or valid US Visa to board flight to USA.";
+                    visaEs = "NO SE PERMITE SU ABORDAJE: Pasaportes españoles REQUIEREN ESTA aprobado o Visa de EE.UU. vigente.";
+                    speechMsgEn = "Boarding is denied. Passengers traveling to the US must complete ESTA registration prior to departure.";
+                    speechMsgEs = "Abordaje denegado. Pasajeros con destino a EE.UU. deben contar con registro ESTA previo al vuelo.";
+                }
+                else if (!hasUSVisa && !hasESTA) {
+                    isAllowed = false;
+                    status = "NO BOARD - US VISA REQUIRED";
+                    statusClass = "px-3 py-1 rounded bg-red-500/20 text-red-400 border border-red-500/40 font-bold text-xs glow-red";
+                    visaEn = "BOARDING DENIED: A valid physical US B1/B2 Visa or approved ESTA is mandatory for entry into the United States.";
+                    visaEs = "NO SE PERMITE SU ABORDAJE: Se requiere Visa B1/B2 física de EE.UU. o ESTA aprobado para volar a Estados Unidos.";
+                    speechMsgEn = "Boarding denied. A valid US Visa or ESTA permit is required for entry into the United States.";
+                    speechMsgEs = "Abordaje denegado. Se requiere Visa estadounidense o ESTA válido para ingresar a EE.UU.";
+                }
+            }
+
+            // --- REGLA 3: DESTINO MÉXICO (CIUDAD DE MÉXICO, MONTERREY, CANCÚN) ---
+            else if (isDestMX) {
+                if (isNatMX || hasMXResident) {
+                    status = "OK TO BOARD (MEXICAN CITIZEN / RESIDENT)";
+                    visaEn = "OK TO BOARD: Mexican Citizens or Mexican Residents (Permanent/Temp) are VISA EXEMPT.";
+                    visaEs = "ABORDAJE PERMITIDO: Ciudadanos o Residentes Mexicanos exentos de visa.";
+                    speechMsgEn = "Welcome back to Mexico. Your documentation is valid for travel.";
+                    speechMsgEs = "Bienvenido a México. Su documentación es válida para viajar.";
+                }
+                else if (hasUSGreenCard || hasUSVisa || hasSchengenVisa) {
+                    status = "OK TO BOARD (MEXICAN VISA EXEMPTION GRANTED)";
+                    visaEn = "OK TO BOARD: Exemption granted due to holding valid US Green Card, physical US Visa, or Schengen Visa.";
+                    visaEs = "ABORDAJE PERMITIDO: Exención otorgada por contar con Green Card de EE.UU., Visa de EE.UU. o Schengen vigente.";
+                    speechMsgEn = "Your valid US or Schengen visa grants you entry exemption for Mexico. Boarding cleared.";
+                    speechMsgEs = "Su visa estadounidense o Schengen le otorga exención de visado para ingresar a México.";
+                }
+                else if (isNatGT) {
+                    isAllowed = false;
+                    status = "NO BOARD - MEXICAN CONSULAR VISA REQUIRED FOR GUATEMALA";
+                    statusClass = "px-3 py-1 rounded bg-red-500/20 text-red-400 border border-red-500/40 font-bold text-xs glow-red";
+                    visaEn = "BOARDING DENIED: Guatemalan passport holders REQUIRE a valid physical Mexican Consular Visa stamped in passport, OR a valid US/Schengen/UK/Canada Visa or US Green Card. (Note: Foreign visitors without Mexican passport or residency must pay DNR tax).";
+                    visaEs = "NO SE PERMITE SU ABORDAJE: Pasaportes guatemaltecos REQUIEREN Visa Consular Física Mexicana, o Visa física vigente de EE.UU./Schengen o Residencia estadounidense. (Nota: Todo visitante extranjero paga impuesto DNR).";
+                    speechMsgEn = "Boarding is denied. Guatemalan nationals require a physical Mexican consular visa or a valid US or Schengen visa.";
+                    speechMsgEs = "Abordaje denegado. Los nacionales de Guatemala requieren visa consular mexicana o visa vigente de EE.UU./Schengen.";
+                }
+                else if (isNatES) {
+                    status = "OK TO BOARD (SPANISH VISA EXEMPT FOR MEXICO)";
+                    visaEn = "OK TO BOARD: Spanish passport holders are VISA EXEMPT for tourism in Mexico up to 180 days. Passport must be valid. (DNR Tax mandatory).";
+                    visaEs = "ABORDAJE PERMITIDO: Pasaportes españoles exentos de visa de turismo hasta 180 días. (Debe pagar impuesto DNR al ingresar).";
+                    speechMsgEn = "Spanish citizens are visa exempt for Mexico. Please note DNR immigration tax applies upon arrival.";
+                    speechMsgEs = "Los ciudadanos españoles están exentos de visa para México. Tome en cuenta que aplica el impuesto DNR al ingresar.";
+                }
+            }
+
+            // --- REGLA 4: DESTINO GENERAL / OTROS ---
+            else {
+                status = "OK TO BOARD - STANDARD ENTRY RULES";
+                visaEn = "OK TO BOARD: Documentation compliant under standard international entry agreements. Check minimum passport validity.";
+                visaEs = "ABORDAJE PERMITIDO: Documentación cumple con acuerdos internacionales estándar. Verifique vigencia de pasaporte.";
+                speechMsgEn = "Your travel documents are compliant with destination regulations. Have a safe flight.";
+                speechMsgEs = "Su documentación cumple con las regulaciones de destino. Que tenga un buen vuelo.";
+            }
+
+            // Renderizado de mensajes para el pasajero
+            const msgBox = document.getElementById('tmat-pax-msg-box');
+            if (!isAllowed) {
+                msgBox.className = "p-4 rounded-xl border border-red-500/40 bg-red-500/10 text-red-200 text-xs space-y-2";
+                msgBox.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2 font-bold text-sm text-red-400"><i class="fa-solid fa-circle-xmark"></i> FRASE AGENTE (RECHAZO DE ABORDAJE / NO BOARD)</div>
+                        <button onclick="speakText('${speechMsgEn.replace(/'/g, "\\'")}', 'en-US')" class="px-2.5 py-1 bg-red-500/20 hover:bg-red-500/30 text-red-300 rounded text-[11px] font-bold"><i class="fa-solid fa-volume-high"></i> Audio Rechazo</button>
+                    </div>
+                    <p class="font-mono text-gray-200 bg-sky-950 p-2.5 rounded"><strong>English:</strong> "${speechMsgEn}"</p>
+                    <p class="text-gray-300 italic"><strong>Español:</strong> "${speechMsgEs}"</p>
+                `;
+            } else {
+                msgBox.className = "p-4 rounded-xl border border-green-500/30 bg-green-500/10 text-green-200 text-xs space-y-2";
+                msgBox.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2 font-bold text-sm text-green-400"><i class="fa-solid fa-circle-check"></i> FRASE AGENTE (ABORDAJE PERMITIDO / OK TO BOARD)</div>
+                        <button onclick="speakText('${speechMsgEn.replace(/'/g, "\\'")}', 'en-US')" class="px-2.5 py-1 bg-green-500/20 hover:bg-green-500/30 text-green-300 rounded text-[11px] font-bold"><i class="fa-solid fa-volume-high"></i> Audio Autorización</button>
+                    </div>
+                    <p class="font-mono text-gray-200 bg-sky-950 p-2.5 rounded"><strong>English:</strong> "${speechMsgEn}"</p>
+                    <p class="text-gray-300 italic"><strong>Español:</strong> "${speechMsgEs}"</p>
+                `;
+            }
+
+            document.getElementById('tmat-status-badge').className = statusClass;
+            document.getElementById('tmat-status-badge').innerText = status;
+            document.getElementById('tmat-out-summary').innerText = `- ORIGEN/NAC: ${natVal || 'GTM'} | DOC: ${docType} | AUTH: ${auth} | DESTINO: ${destVal || 'MEX'} | TRÁNSITO: ${transit}`;
+            document.getElementById('tmat-out-visa-en').innerText = visaEn;
+            document.getElementById('tmat-out-visa-es').innerText = visaEs;
+
+            document.getElementById('timatic-result-screen').classList.remove('hidden');
+        }
+
+        // ================= TRADUCCIÓN BIDIRECCIONAL & VOZ =================
+        const voiceLangMap = {
+            'en': 'en-US', 'it': 'it-IT', 'zh-CN': 'zh-CN', 'fr': 'fr-FR', 
+             warmth: 'ko-KR', 'ja': 'ja-JP', 'he': 'he-IL', 'es': 'es-ES'
+        };
+
+        function updateTranslationMode() {
+            const dir = document.getElementById('trans-dir-select').value;
+            const langCode = document.getElementById('trans-lang-select').value;
+            const langName = document.getElementById('trans-lang-select').options[document.getElementById('trans-lang-select').selectedIndex].text;
+
+            const labelIn = document.getElementById('trans-label-input');
+            const labelOut = document.getElementById('trans-label-output');
+
+            if (dir === 'es2foreign') {
+                labelIn.innerHTML = `🇪🇸 Texto de Entrada (Español):`;
+                labelOut.innerHTML = `🌐 Traducción Generada (${langName}):`;
+            } else {
+                labelIn.innerHTML = `🌐 Texto de Entrada (${langName}):`;
+                labelOut.innerHTML = `🇪🇸 Traducción Generada (Español):`;
+            }
+            translateTextRealtime();
+        }
+
+        async function translateTextRealtime() {
+            const textIn = document.getElementById('trans-input-es').value.trim();
+            const dir = document.getElementById('trans-dir-select').value;
+            const targetLang = document.getElementById('trans-lang-select').value;
+            const outputDiv = document.getElementById('trans-output-text');
+
+            if (!textIn) {
+                outputDiv.innerText = "Escribe o dicta por micrófono para traducir automáticamente...";
+                return;
+            }
+
+            let sl = (dir === 'es2foreign') ? 'es' : targetLang;
+            let tl = (dir === 'es2foreign') ? targetLang : 'es';
+
+            outputDiv.innerText = "Traduciendo...";
+
+            try {
+                const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${sl}&tl=${tl}&dt=t&q=${encodeURIComponent(textIn)}`;
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data && data[0]) {
+                    outputDiv.innerText = data[0].map(item => item[0]).join('');
+                } else {
+                    outputDiv.innerText = "Error al obtener la traducción.";
+                }
+            } catch (err) {
+                outputDiv.innerText = "Error de conexión con el motor de traducción.";
+            }
+        }
+
+        function startVoiceRecognition() {
+            const btn = document.getElementById('btn-mic-start');
+            const dir = document.getElementById('trans-dir-select').value;
+            const targetLang = document.getElementById('trans-lang-select').value;
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                alert('Tu navegador no soporta la función de dictado por micrófono.');
+                return;
+            }
+
+            const rec = new SpeechRecognition();
+            rec.lang = (dir === 'es2foreign') ? 'es-ES' : (voiceLangMap[targetLang] || 'en-US');
+            rec.interimResults = false;
+
+            rec.onstart = function() {
+                btn.className = "px-3 py-1 bg-red-600 text-white rounded-lg text-xs font-bold animate-pulse flex items-center gap-1.5";
+                btn.innerHTML = '<i class="fa-solid fa-microphone"></i> 🎙️ Escuchando...';
+            };
+
+            rec.onresult = function(e) {
+                document.getElementById('trans-input-es').value = e.results[0][0].transcript;
+                translateTextRealtime();
+            };
+
+            rec.onerror = function(e) { alert('Error del micrófono: ' + e.error); };
+
+            rec.onend = function() {
+                btn.className = "px-3 py-1 bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/40 rounded-lg text-xs font-bold transition flex items-center gap-1.5";
+                btn.innerHTML = '<i class="fa-solid fa-microphone"></i> 🎙️ Dictar por Micrófono';
+            };
+
+            rec.start();
+        }
+
+        function speakTranslatedText() {
+            const text = document.getElementById('trans-output-text').innerText;
+            const dir = document.getElementById('trans-dir-select').value;
+            const targetLang = document.getElementById('trans-lang-select').value;
+
+            let voiceLang = (dir === 'es2foreign') ? (voiceLangMap[targetLang] || 'en-US') : 'es-ES';
+            if (text && !text.includes("Escribe o dicta")) {
+                speakText(text, voiceLang);
+            }
+        }
+
+        function loadQuickPhrase(phrase) {
+            if (!phrase) return;
+            document.getElementById('trans-dir-select').value = 'es2foreign';
+            updateTranslationMode();
+            document.getElementById('trans-input-es').value = phrase;
+            translateTextRealtime();
+        }
+
+        // ================= BANCO DE +50 PREGUNTAS BILINGÜES =================
+        const questionBank = [
+            {
+                cat: "WORLDTRACER - CODES",
+                en: "What is the IATA WorldTracer code for a Red Hardshell Suitcase?",
+                es: "¿Cuál es el código IATA WorldTracer para una Maleta Rígida / Dura de Color Rojo?",
+                options: [
+                    { text: "22RD", correct: true, exp: "Correct! 22 represents Hardshell Suitcase and RD represents Red." },
+                    { text: "01BK", correct: false, exp: "Incorrect. 01BK is Softside Black." },
+                    { text: "05BL", correct: false, exp: "Incorrect. 05BL is Duffle Bag Blue." }
+                ]
+            },
+            {
+                cat: "WORLDTRACER - TRANSACTIONS",
+                en: "A passenger reports a lost bag at the arrival hall. Which file must be opened in WorldTracer?",
+                es: "Un pasajero reporta maleta extraviada en la sala de llegada. ¿Qué expediente debe abrirse en WorldTracer?",
+                options: [
+                    { text: "AHL (Advise Missing Baggage File)", correct: true, exp: "Correct! AHL is used to trace lost checked luggage." },
+                    { text: "DPR (Damaged Property Report)", correct: false, exp: "Incorrect. DPR is for damaged bags." },
+                    { text: "OHD (On-Hand Baggage)", correct: false, exp: "Incorrect. OHD is for found unclaimed bags." }
+                ]
+            },
+            {
+                cat: "WORLDTRACER - DAMAGE",
+                en: "A suitcase arrives with a broken wheel. What is the correct report to log in WorldTracer?",
+                es: "Una maleta llega con una rueda rota. ¿Cuál es el reporte correcto a registrar en WorldTracer?",
+                options: [
+                    { text: "DPR (Damaged Property Report)", correct: true, exp: "Correct! DPR handles physical damage claims." },
+                    { text: "AHL (Advise Missing)", correct: false, exp: "Incorrect." },
+                    { text: "PIR (Property Irregularity Receipt)", correct: false, exp: "Incorrect." }
+                ]
+            },
+            {
+                cat: "TIMATIC - US MIGRATION",
+                en: "Does a US Permanent Resident (Green Card holder) require a Mexican visa to enter Mexico?",
+                es: "¿Un residente permanente de EE.UU. (Green Card) requiere visa mexicana para entrar a México?",
+                options: [
+                    { text: "No, Green Card holders are visa exempt for Mexico.", correct: true, exp: "Correct! US Green Card holders are exempt from Mexican tourist visas." },
+                    { text: "Yes, a Mexican consular visa is always required.", correct: false, exp: "Incorrect." }
+                ]
+            },
+            {
+                cat: "TIMATIC - US TRANSIT",
+                en: "Can a passenger transit through a US airport without a US Visa or ESTA?",
+                es: "¿Puede un pasajero hacer tránsito por un aeropuerto de EE.UU. sin visa estadounidense ni ESTA?",
+                options: [
+                    { text: "No, US airports do not offer sterile transit. A US Visa or ESTA is mandatory.", correct: true, exp: "Correct! USA requires full entry clearance even for transit." },
+                    { text: "Yes, as long as they stay in the international lounge.", correct: false, exp: "Incorrect." }
+                ]
+            },
+            {
+                cat: "WORLDTRACER - FORWARDING",
+                en: "Which special tag must be placed on a delayed bag being forwarded to its owner on the next flight?",
+                es: "¿Qué etiqueta especial debe colocarse en una maleta demorada enviada al dueño en el siguiente vuelo?",
+                options: [
+                    { text: "RUSH / Expedite Tag", correct: true, exp: "Correct! RUSH tags prioritize delayed luggage forwarding." },
+                    { text: "Heavy Weight Tag", correct: false, exp: "Incorrect." },
+                    { text: "VIP Priority Tag", correct: false, exp: "Incorrect." }
+                ]
+            },
+            {
+                cat: "MEXICO - TAX REGULATIONS",
+                en: "Which passengers are required to pay the Mexican Non-Resident Fee (DNR / DNI tax)?",
+                es: "¿Qué pasajeros deben pagar el impuesto Derecho de No Residente (DNR / DNI) en México?",
+                options: [
+                    { text: "Foreign passengers without Mexican passport or Mexican residence.", correct: true, exp: "Correct! Non-resident foreign visitors must pay the DNR tax." },
+                    { text: "Mexican citizens returning to Mexico.", correct: false, exp: "Incorrect." }
+                ]
+            }
+        ];
+
+        let currentQuizIdx = 0;
+
+        function loadQuizQuestion(idx) {
+            const q = questionBank[idx % questionBank.length];
+            document.getElementById('quiz-cat-badge').innerText = q.cat;
+            document.getElementById('quiz-current-num').innerText = (idx % questionBank.length) + 1;
+            document.getElementById('quiz-question-en').innerText = q.en;
+            document.getElementById('quiz-question-es').innerText = q.es;
+            document.getElementById('quiz-feedback-box').className = "hidden";
+
+            document.getElementById('btn-quiz-speech').onclick = () => speakText(q.en, 'en-US');
+
+            const container = document.getElementById('quiz-options-container');
+            container.innerHTML = q.options.map((opt, i) => `
+                <button onclick="answerQuiz(${opt.correct}, '${opt.exp.replace(/'/g, "\\'")}')" class="w-full text-left p-4 bg-sky-950 hover:bg-sky-900 border border-gray-800 rounded-xl text-xs font-semibold text-gray-200 transition">
+                    ${i + 1}. ${opt.text}
+                </button>
+            `).join('');
+        }
+
+        function answerQuiz(isCorrect, exp) {
+            const fb = document.getElementById('quiz-feedback-box');
+            fb.classList.remove('hidden');
+
+            if (isCorrect) {
+                fb.className = "p-4 rounded-xl border border-green-500/30 bg-green-500/10 text-green-400 block font-semibold text-xs";
+                fb.innerText = "✓ " + exp;
+                speakText(exp, 'en-US');
+            } else {
+                fb.className = "p-4 rounded-xl border border-red-500/30 bg-red-500/10 text-red-400 block font-semibold text-xs";
+                fb.innerText = "✗ Incorrect option. Please review the rule and try again.";
+            }
+        }
+
+        function getRandomQuestion() {
+            currentQuizIdx = Math.floor(Math.random() * questionBank.length);
+            loadQuizQuestion(currentQuizIdx);
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function speakText(text, lang = 'en-US') {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = lang;
+                utterance.rate = 0.88;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            populateDataList();
+            updateManualBagCode();
+            loadQuizQuestion(0);
+            updateTranslationMode();
+            executeTimaticCheck();
+        });
+    </script>
+</body>
+</html>
